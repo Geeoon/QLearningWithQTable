@@ -101,12 +101,14 @@ class Agent:
             return self._board.get_tile(self._position[0], self._position[1]).score
 
     def episode(self):
-        self.update()
+        while self._board.get_tile(self._position[0], self._position[1]).terminal == False:
+            self.update()
 
 
 
 if __name__ == "__main__":
     board = Board(5, 5)
+    board.set_tile(4, 4, Tile(100, True))
     agent = Agent(1, 1.0, board)
     print(agent)
     agent.episode()
