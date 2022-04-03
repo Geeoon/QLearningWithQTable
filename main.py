@@ -1,3 +1,4 @@
+# https://sci-hub.ru/10.1017/9781108955652.016
 import random
 import numpy as np
 
@@ -65,8 +66,10 @@ class QTable:
         self._table[x, y, action] = val
 
     def get_max_state_action_value_actions(self, x:int, y:int):
-        print(np.argwhere(self.get_state_action_values(x, y) == np.amax(self.get_state_action_values(x, y))).flatten())
         return np.argwhere(self.get_state_action_values(x, y) == np.amax(self.get_state_action_values(x, y))).flatten()
+
+    def get_max_state_action_value(self, x:int, y:int):
+        return max(self._table[x, y])
 
 
 class Agent:
@@ -98,28 +101,36 @@ class Agent:
         elif dir == 3:
             self._position[0] = self._position[0] - 1
 
-    def update(self):
+    def optimal_action(self):
         possible_actions = self._board.get_actions(self._position[0], self._position[1])
-        action = 0
         if random.random() < self._learning_rate:  # explore
-            action = random.choice(possible_actions)
+            return random.choice(possible_actions)  
         else:
-            best_actions = np.intersect1d(possible_actions, self._qtable.get_max_state_action_value_actions(self._position[0], self._position[1]))  # find actions with 
-            action = random.choice(best_actions)
-        
+            best_actions = np.intersect1d(possible_actions, self._qtable.get_max_state_action_value_actions(self._position[0], self._position[1]))  # find actions with best Q-value
+            return random.choice(best_actions)
 
+    def update(self):
+        action = self.optimal_action()  # a <- get_action(Q, s)
+        saved_position = self._position
+        self.move(action)
+        self._qtable.set_state_action_value(saved_position[0], saved_position[1], action, self._qtable.get_state_action_values(saved_position[0], saved_position[1])[action] + self._learning_rate * (self._board.get_tile(self._position[0], self._position[1]).score + self._discount_factor * self._qtable.get_max_state_action_value(self._position[0], self._position[1]) - self._qtable.get_state_action_values(saved_position[0], saved_position[1])[action]))
         return self._board.get_tile(self._position[0], self._position[1]).score
 
     def episode(self):
+        episode_score = 0
+        self._position = [0, 0]  # s <- get_initial_state()
         print(self)
-        while self._board.get_tile(self._position[0], self._position[1]).terminal == False:
-            self.update()
+        while self._board.get_tile(self._position[0], self._position[1]).terminal == False:  # while s not terminal do
+            episode_score += self.update()
             print(agent)
-        self._position = [0, 0]
+        print("Episode ended with score of: ", episode_score)
 
 
 if __name__ == "__main__":
     board = Board(5, 5)
     board.set_tile(4, 4, Tile(100, True))
-    agent = Agent(0, 1.0, board)
-    agent.episode()
+    board.set_tile(4, 0, Tile(-10, False))
+    board.set_tile(0, 4, Tile(-50, True))
+    agent = Agent(0.1, 0.5, board)
+    for i in range(100000):
+        agent.episode()
