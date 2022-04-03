@@ -100,12 +100,13 @@ class Agent:
 
     def update(self):
         possible_actions = self._board.get_actions(self._position[0], self._position[1])
+        action = 0
         if random.random() < self._learning_rate:  # explore
-            self.move(random.choice(possible_actions))
+            action = random.choice(possible_actions)
         else:
-            best_actions = np.intersect1d(possible_actions, self._qtable.get_max_state_action_value_actions(self._position[0], self._position[1]))
+            best_actions = np.intersect1d(possible_actions, self._qtable.get_max_state_action_value_actions(self._position[0], self._position[1]))  # find actions with 
             action = random.choice(best_actions)
-            self.move(action)
+        
 
         return self._board.get_tile(self._position[0], self._position[1]).score
 
