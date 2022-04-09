@@ -66,7 +66,6 @@ class QTable:
 
     def set_state_action_value(self, x:int, y:int, action:int, val:float):
         self._table[x, y, action] = val
-        print(val)
 
     def get_max_state_action_value_actions(self, x:int, y:int):
         return np.argwhere(self.get_state_action_values(x, y) == np.amax(self.get_state_action_values(x, y))).flatten()
@@ -129,18 +128,18 @@ class Agent:
 
 
 if __name__ == "__main__":
-    board = Board(2, 2)
-    board.set_tile(1, 0, Tile(100, True))
-    board.set_tile(1, 1, Tile(-100, True))
-    board.set_tile(0, 1, Tile(-100, True))
-    agent = Agent(1.0, 1.0, board)
-    for i in range(10000): # training with high learning rate
+    board = Board(4, 4)
+    board.set_tile(3, 3, Tile(100, True))
+    board.set_tile(0, 3, Tile(-100, False))
+    board.set_tile(3, 0, Tile(-100, False))
+    agent = Agent(0.45, 0.5, board)
+    for i in range(1000): # training with high learning rate
         agent.episode()
 
     agent._learning_rate = 0
     trials = 0
     trails_score_pair = [[], []]
-    for i in range(10):
+    for i in range(100):
         trails_score_pair[0].append(trials)
         trails_score_pair[1].append(agent.episode())
         trials += 1
