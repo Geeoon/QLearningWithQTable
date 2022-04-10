@@ -68,7 +68,9 @@ class QTable:
         self._table[x, y, action] = val
 
     def get_max_state_action_value_actions(self, x:int, y:int):
-        return np.argwhere(self.get_state_action_values(x, y) == np.amax(self.get_state_action_values(x, y))).flatten()
+        # TODO: make custom max function that sees if the max is even a possible thing
+        for i in range()
+        return np.flatnonzero(self.get_state_action_values(x, y) == np.max(self.get_state_action_values(x, y))).tolist()
 
     def get_max_state_action_value(self, x:int, y:int):
         return max(self._table[x, y])
@@ -108,7 +110,9 @@ class Agent:
         if 0 < self._learning_rate:  # explore
             return random.choice(possible_actions)  
         else:
-            best_actions = np.intersect1d(possible_actions, self._qtable.get_max_state_action_value_actions(self._position[0], self._position[1]))  # find actions with best Q-value
+            max_q_actions = self._qtable.get_max_state_action_value_actions(self._position[0], self._position[1])
+            best_actions = np.intersect1d(possible_actions, max_q_actions)  # find actions with best Q-value
+            print(self._position, possible_actions, max_q_actions)
             return random.choice(best_actions)
 
     def update(self):
@@ -130,8 +134,11 @@ class Agent:
 if __name__ == "__main__":
     board = Board(4, 4)
     board.set_tile(3, 3, Tile(100, True))
-    board.set_tile(0, 3, Tile(-100, False))
-    board.set_tile(3, 0, Tile(-100, False))
+    #board.set_tile(1, 1, Tile(-20, False))
+    board.set_tile(0, 1, Tile(-30, False))
+    board.set_tile(1, 0, Tile(-50, False))
+    #board.set_tile(0, 3, Tile(-100, False))
+    #board.set_tile(3, 0, Tile(-100, False))
     agent = Agent(0.45, 0.5, board)
     for i in range(1000): # training with high learning rate
         agent.episode()
