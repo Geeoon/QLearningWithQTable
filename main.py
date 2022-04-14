@@ -3,10 +3,9 @@ import random
 import copy
 import numpy as np
 import matplotlib.pyplot as plt
-from pyparsing import And
 
 class Tile:
-    def __init__(self, score:int, terminal:bool):
+    def __init__(self, score:int, terminal:bool = False):
         self._score = score
         self._terminal = terminal
 
@@ -139,15 +138,14 @@ class Agent:
 
 
 if __name__ == "__main__":
-    board = Board(4, 4)
-    board.set_tile(3, 3, Tile(100, True))
-    #board.set_tile(1, 1, Tile(-20, False))
-    board.set_tile(0, 1, Tile(-30, False))
-    board.set_tile(1, 0, Tile(-50, False))
-    #board.set_tile(0, 3, Tile(-100, False))
-    #board.set_tile(3, 0, Tile(-100, False))
-    agent = Agent(0.9, 0.5, board)
-    for i in range(4): # training with high learning rate
+    board = Board(5, 5)
+    board.set_tile(4, 4, Tile(100, True))
+    board.set_tile(1, 1, Tile(-100))
+    board.set_tile(0, 1, Tile(-30, True))
+    board.set_tile(1, 0, Tile(-40))
+    board.set_tile(0, 3, Tile(200, True))
+    agent = Agent(0.9, 0.75, board)
+    for i in range(100): # training with high learning rate
         agent.episode()
 
     agent._learning_rate = 0
@@ -159,6 +157,6 @@ if __name__ == "__main__":
         trials += 1
 
 plt.plot(trails_score_pair[0], trails_score_pair[1])
-plt.xlabel('trial number')
-plt.ylabel('Average score of 10 episodes')
+plt.xlabel('Trial Number')
+plt.ylabel('Score of Episode')
 plt.show()
