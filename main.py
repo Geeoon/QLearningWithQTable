@@ -3,6 +3,7 @@ import random
 import copy
 import numpy as np
 import matplotlib.pyplot as plt
+from pyparsing import And
 
 class Tile:
     def __init__(self, score:int, terminal:bool):
@@ -67,10 +68,18 @@ class QTable:
     def set_state_action_value(self, x:int, y:int, action:int, val:float):
         self._table[x, y, action] = val
 
-    def get_max_state_action_value_actions(self, x:int, y:int):
-        # TODO: make custom max function that sees if the max is even a possible thing
-        for i in range()
-        return np.flatnonzero(self.get_state_action_values(x, y) == np.max(self.get_state_action_values(x, y))).tolist()
+    def get_max_state_action_value_actions(self, x:int, y:int, board:Board):
+        actions = []
+        max = -float("inf")
+        action_values = self.get_state_action_values(x, y)
+        for i in range(len(action_values)):
+            if i in board.get_actions(x, y):
+                if (action_values[i] > max):
+                    max = action_values[i]
+        for i in range(len(action_values)):
+            if i in board.get_actions(x, y) and action_values[i] == max:
+                actions.append(i)
+        return actions
 
     def get_max_state_action_value(self, x:int, y:int):
         return max(self._table[x, y])
@@ -110,10 +119,8 @@ class Agent:
         if 0 < self._learning_rate:  # explore
             return random.choice(possible_actions)  
         else:
-            max_q_actions = self._qtable.get_max_state_action_value_actions(self._position[0], self._position[1])
-            best_actions = np.intersect1d(possible_actions, max_q_actions)  # find actions with best Q-value
-            print(self._position, possible_actions, max_q_actions)
-            return random.choice(best_actions)
+            best_actions = self._qtable.get_max_state_action_value_actions(self._position[0], self._position[1], self._board)  # find actions with best Q-value
+            return random.choice(best_actions)  # if there are multiple, choose a random one
 
     def update(self):
         action = self.optimal_action()  # a <- get_action(Q, s)
@@ -139,8 +146,8 @@ if __name__ == "__main__":
     board.set_tile(1, 0, Tile(-50, False))
     #board.set_tile(0, 3, Tile(-100, False))
     #board.set_tile(3, 0, Tile(-100, False))
-    agent = Agent(0.45, 0.5, board)
-    for i in range(1000): # training with high learning rate
+    agent = Agent(0.9, 0.5, board)
+    for i in range(4): # training with high learning rate
         agent.episode()
 
     agent._learning_rate = 0
